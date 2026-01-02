@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Check API</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.5s ease;
+            background-color: #f0f2f5;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 350px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            resize: none;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover { background: #0056b3; }
+        #result { margin-top: 20px; font-weight: bold; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Vibe Check 🤖</h1>
+        <p>Type something and I'll detect the mood.</p>
+        <textarea id="user-text" placeholder="I am having a great day..."></textarea>
+        <br>
+        <button onclick="analyzeText()">Analyze Vibe</button>
+        <div id="result">Waiting...</div>
+    </div>
+
+    <script>
+        async function analyzeText() {
+            const text = document.getElementById('user-text').value;
+            const resultDiv = document.getElementById('result');
+
+            // 1. Send data to Python Backend
+            try {
+                const response = await fetch('http://127.0.0.1:5000/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+
+                // 2. Receive data from Python
+                const data = await response.json();
+
+                // 3. Update UI
+                resultDiv.innerText = `Vibe: ${data.vibe}`;
+                document.body.style.backgroundColor = data.color;
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerText = "Error: Is the Python server running?";
+            }
+        }
+    </script>
+</body>
+</html>
